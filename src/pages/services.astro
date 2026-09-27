@@ -1,0 +1,131 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CTA from '../components/CTA.astro';
+import Icon from '../components/Icon.astro';
+import { SERVICES, PROCESS } from '../data/services';
+
+const FAQ = [
+  {
+    q: '为什么只写"起价"，不写具体报价？',
+    a: '因为项目差异太大。同样是一个小程序，只要展示和要带交易、要对接第三方，工作量差好几倍。给一个锚点是让你判断预算是否匹配，具体报价我会在聊完需求后 48 小时内给，并且写清范围和边界。',
+  },
+  {
+    q: '付款节奏怎么安排？',
+    a: '一般 4-3-3：启动 40%，里程碑交付 30%，上线验收 30%。金额较小的项目（5000 元以内）通常 5-5。不做全款预付，也不接受完成后一次性付清。',
+  },
+  {
+    q: '中途改需求怎么办？',
+    a: '小调整不额外收费。如果改动影响范围或周期，我会给出变更说明和补充报价，你确认了才动工。不会出现做完才告诉你加钱的情况。',
+  },
+  {
+    q: '项目做完之后还管吗？',
+    a: '所有项目含 30 天免费缺陷修复。之后可以按需续约维护包，也可以不续 —— 源码、文档、部署权限都在你手上，你找谁维护都行。',
+  },
+  {
+    q: '有哪些活你不接？',
+    a: '三类不接：涉及灰产或违规内容的；需求方自己没想清楚目标、只想"先做个看看"的；要求保证具体流量或销量结果的。第三条不是推卸责任 —— 内容效果受太多不可控因素影响，我不能为无法控制的结果打包票。',
+  },
+  {
+    q: '你一个人做，能保证工期吗？',
+    a: '我严格串行排期，不并行接项目。这意味着你可能要排队，但排上之后不会被别的项目挤掉。延期我会提前一周告诉你，而不是拖到交付日。',
+  },
+];
+---
+
+<BaseLayout title="服务与报价" description="AI 编程交付、AI 视频制作、AI 自媒体代运营、知识付费陪跑。明码标价，写明范围与周期。">
+  <section class="section">
+    <div class="wrap">
+      <div class="section__head">
+        <span class="eyebrow">服务</span>
+        <h1 class="section__title">四条业务线，一条内核</h1>
+        <p class="section__desc">
+          都是在做同一件事：用 AI 把想法变成能交付的东西。下面写清了每一条包含什么、不含什么、大概多少钱。
+        </p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+        {SERVICES.map((s) => (
+          <div class="card svc" id={s.id} style="scroll-margin-top: 84px;">
+            <div class="svc__head">
+              <h2 style="font-size: 22px;">
+                {s.name}
+                {s.featured && <span class="badge">主打</span>}
+              </h2>
+              <div class="svc__price">{s.priceFrom} <span>起</span></div>
+            </div>
+            <p class="card__desc" style="font-size: 16px;">{s.tagline}</p>
+
+            <div class="grid grid--2" style="gap: 28px; margin-top: 8px;">
+              <div>
+                <p style="font-weight: 600; color: var(--text); margin-bottom: 12px; font-size: 14px;">交付内容</p>
+                <ul class="svc__list">
+                  {s.deliverables.map((d) => <li>{d}</li>)}
+                </ul>
+              </div>
+              <div>
+                <p style="font-weight: 600; color: var(--text); margin-bottom: 12px; font-size: 14px;">适合谁 / 周期</p>
+                <p class="card__desc" style="margin-bottom: 14px;">{s.fitFor}</p>
+                <p class="card__desc" style="margin-bottom: 14px;">
+                  <span class="mono" style="color: var(--text);">周期：</span>{s.timeline}
+                </p>
+                <p class="card__desc">
+                  <span class="mono" style="color: var(--text);">计价：</span>{s.priceNote}
+                </p>
+              </div>
+            </div>
+
+            <div class="svc__foot">
+              <a href="/contact" class="btn btn--primary" style="padding: 9px 18px; font-size: 14px;">
+                咨询这项服务
+                <Icon name="arrow" size={15} />
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--soft">
+    <div class="wrap">
+      <div class="section__head">
+        <span class="eyebrow">合作流程</span>
+        <h2 class="section__title">四步走完，每步都能验收</h2>
+      </div>
+      <div class="grid grid--4">
+        {PROCESS.map((p) => (
+          <div class="step">
+            <div class="step__num">{p.step}</div>
+            <h3 class="step__title">{p.title}</h3>
+            <p class="step__desc">{p.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section__head">
+        <span class="eyebrow">常见问题</span>
+        <h2 class="section__title">先把话说在前面</h2>
+      </div>
+      <div style="max-width: 760px;">
+        {FAQ.map((f) => (
+          <details style="border-bottom: 1px solid var(--border); padding: 18px 0;">
+            <summary style="cursor: pointer; font-weight: 600; font-size: 16px; list-style: none; display: flex; justify-content: space-between; gap: 16px;">
+              {f.q}
+              <span style="color: var(--accent); flex-shrink: 0;">+</span>
+            </summary>
+            <p style="color: var(--text-soft); margin-top: 12px; font-size: 15px;">{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <CTA
+    title="还在犹豫要不要找人做？"
+    desc="把你的情况说清楚，我会告诉你这件事值不值得做、大概要花多少钱。如果觉得不值得做，我会直接说。"
+  />
+</BaseLayout>

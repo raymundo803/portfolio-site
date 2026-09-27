@@ -1,0 +1,144 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { CONTACT, SITE } from '../config/site';
+
+const hasForm = Boolean(CONTACT.formEndpoint);
+
+const subject = encodeURIComponent(`项目咨询 · 来自 ${SITE.name}`);
+const mailtoBody = encodeURIComponent(
+  `你好，我想咨询一个项目：\n\n1. 我想做什么：\n2. 目前的状况：\n3. 期望时间：\n4. 预算范围：\n5. 我的联系方式：\n`
+);
+const mailto = CONTACT.email ? `mailto:${CONTACT.email}?subject=${subject}&body=${mailtoBody}` : '';
+---
+
+<BaseLayout title="联系" description="把你的需求说清楚，48 小时内给出范围、周期与报价。首次沟通免费。">
+  <section class="section">
+    <div class="wrap">
+      <div class="section__head">
+        <span class="eyebrow">联系</span>
+        <h1 class="section__title">说说你想做什么</h1>
+        <p class="section__desc">
+          不需要写正式需求文档，说清楚你现在卡在哪就行。48 小时内我会回复范围、周期和报价；
+          如果这件事不值得做，我会直接告诉你。
+        </p>
+      </div>
+
+      <div class="grid grid--2" style="gap: 40px; align-items: start;">
+        <div>
+          {
+            hasForm ? (
+              <form method="POST" action={CONTACT.formEndpoint}>
+                <div class="field">
+                  <label for="name">怎么称呼</label>
+                  <input id="name" name="name" type="text" required placeholder="张女士 / 李先生" />
+                </div>
+                <div class="field">
+                  <label for="contact">联系方式</label>
+                  <input id="contact" name="contact" type="text" required placeholder="微信号 / 手机号 / 邮箱" />
+                </div>
+                <div class="field">
+                  <label for="type">需求类型</label>
+                  <select id="type" name="type">
+                    <option>AI 编程交付</option>
+                    <option>AI 视频制作</option>
+                    <option>AI 自媒体代运营</option>
+                    <option>知识付费 / 陪跑</option>
+                    <option>还没想清楚，想先聊聊</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="budget">预算范围</label>
+                  <select id="budget" name="budget">
+                    <option>5,000 元以内</option>
+                    <option>5,000 – 15,000 元</option>
+                    <option>15,000 – 50,000 元</option>
+                    <option>50,000 元以上</option>
+                    <option>暂不确定</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="message">你想解决什么问题</label>
+                  <textarea id="message" name="message" required placeholder="不用写得很正式。说清楚现状、想达成什么、有没有时间要求就够了。"></textarea>
+                </div>
+                <button type="submit" class="btn btn--primary">
+                  发送
+                  <Icon name="arrow" size={16} />
+                </button>
+              </form>
+            ) : (
+              <div class="card" style="padding: 32px;">
+                <h2 style="font-size: 19px; margin-bottom: 12px;">直接发邮件给我</h2>
+                <p class="card__desc" style="margin-bottom: 20px;">
+                  点下面的按钮会打开你的邮件客户端，并自动带上一个模板 —— 照着填就行，不用自己措辞。
+                </p>
+                {mailto && (
+                  <a href={mailto} class="btn btn--primary" style="margin-bottom: 18px;">
+                    <Icon name="mail" size={16} />
+                    写邮件给 {SITE.author}
+                  </a>
+                )}
+                {CONTACT.email && (
+                  <p class="mono" style="font-size: 14px; color: var(--text-mute);">
+                    或直接发到：{CONTACT.email}
+                  </p>
+                )}
+                <p class="card__desc" style="margin-top: 24px; font-size: 14px; color: var(--text-mute);">
+                  提示：在 <code>src/config/site.ts</code> 里配置 <code>formEndpoint</code>，
+                  这里就会变成真正的在线表单（可接 Formspree、云函数或自建接口）。
+                </p>
+              </div>
+            )
+          }
+        </div>
+
+        <div>
+          <div class="card" style="padding: 28px; margin-bottom: 20px;">
+            <h2 style="font-size: 17px; margin-bottom: 16px;">其他联系方式</h2>
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+              {CONTACT.wechat && (
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <Icon name="wechat" size={17} />
+                  <span>微信：<span class="mono">{CONTACT.wechat}</span></span>
+                </div>
+              )}
+              {CONTACT.email && (
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <Icon name="mail" size={17} />
+                  <span>邮箱：<span class="mono">{CONTACT.email}</span></span>
+                </div>
+              )}
+              {CONTACT.phone && (
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <Icon name="target" size={17} />
+                  <span>电话：<span class="mono">{CONTACT.phone}</span></span>
+                </div>
+              )}
+              <div style="display: flex; gap: 10px; align-items: center;">
+                <Icon name="clock" size={17} />
+                <span>工作日 24 小时内回复</span>
+              </div>
+            </div>
+
+            {CONTACT.wechatQr && (
+              <img
+                src={CONTACT.wechatQr}
+                alt="微信二维码"
+                style="margin-top: 20px; width: 160px; border-radius: 8px; border: 1px solid var(--border);"
+              />
+            )}
+          </div>
+
+          <div class="card" style="padding: 28px;">
+            <h2 style="font-size: 17px; margin-bottom: 14px;">聊之前可以先看</h2>
+            <ul class="svc__list">
+              <li><a href="/services">服务范围与报价锚点</a></li>
+              <li><a href="/work">过往案例（含失败复盘）</a></li>
+              <li><a href="/blog">我对 AI 交付的真实看法</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

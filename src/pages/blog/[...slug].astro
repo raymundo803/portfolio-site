@@ -1,0 +1,53 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CTA from '../../components/CTA.astro';
+import { getCollection, render } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+
+export const getStaticPaths = (async () => {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}) satisfies GetStaticPaths;
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const fmt = (d: Date) =>
+  d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+  ogType="article"
+  publishedTime={post.data.pubDate.toISOString()}
+>
+  <article class="section">
+    <div class="wrap">
+      <header style="max-width: 720px; margin-bottom: 40px;">
+        <div style="margin-bottom: 14px;">
+          {post.data.tags.map((t) => <span class="tag tag--accent">{t}</span>)}
+        </div>
+        <h1 style="font-size: clamp(28px, 5vw, 40px); margin-bottom: 16px;">{post.data.title}</h1>
+        <p style="color: var(--text-soft); font-size: 17px; margin-bottom: 18px;">{post.data.description}</p>
+        <p class="post-item__meta">
+          {fmt(post.data.pubDate)}
+          {post.data.updatedDate && ` · 更新于 ${fmt(post.data.updatedDate)}`}
+        </p>
+      </header>
+
+      <div class="prose">
+        <Content />
+      </div>
+
+      <div style="max-width: 720px; margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border);">
+        <a href="/blog" class="btn btn--ghost">← 返回文章列表</a>
+      </div>
+    </div>
+  </article>
+
+  <CTA />
+</BaseLayout>

@@ -1,0 +1,192 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CTA from '../components/CTA.astro';
+import Icon from '../components/Icon.astro';
+import CaseVisual from '../components/CaseVisual.astro';
+import { HERO, CONTACT } from '../config/site';
+import { CAPABILITIES, STATS } from '../data/profile';
+import { SERVICES, PROCESS } from '../data/services';
+import { CASES } from '../data/cases';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+
+const featuredCases = CASES.slice(0, 3);
+const fmt = (d: Date) => d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<BaseLayout>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="wrap">
+      <span class="eyebrow">{HERO.eyebrow}</span>
+      <h1 class="hero__title">{HERO.title}</h1>
+      <p class="hero__sub">{HERO.subtitle}</p>
+      <div class="btn-row">
+        <a href={HERO.primaryCta.href} class="btn btn--primary">
+          {HERO.primaryCta.text}
+          <Icon name="arrow" size={17} />
+        </a>
+        <a href={HERO.secondaryCta.href} class="btn btn--ghost">{HERO.secondaryCta.text}</a>
+      </div>
+      <p class="hero__meta">
+        <span class="dot"></span>
+        <span>当前接受新项目 · {CONTACT.city} · 远程协作</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- 信任数字 -->
+  <div class="wrap">
+    <div class="stats">
+      {STATS.map((s) => (
+        <div>
+          <div class="stat__value">{s.value}</div>
+          <div class="stat__label">{s.label}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <!-- 能力矩阵 -->
+  <section class="section">
+    <div class="wrap">
+      <div class="section__head">
+        <span class="eyebrow">能力矩阵</span>
+        <h2 class="section__title">四条业务线，一个内核</h2>
+        <p class="section__desc">
+          看起来是四件事，其实都是同一件事：用 AI 把内容或软件，从 0 做到能交付。
+        </p>
+      </div>
+      <div class="grid grid--4">
+        {CAPABILITIES.map((c) => (
+          <a href={c.href} class="card cap">
+            <span class="cap__icon"><Icon name={c.icon} size={20} /></span>
+            <h3 class="card__title">{c.title}</h3>
+            <p class="card__desc">{c.desc}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 精选案例 -->
+  <section class="section section--soft">
+    <div class="wrap">
+      <div class="section__head">
+        <span class="eyebrow">案例</span>
+        <h2 class="section__title">做过的事，比会什么更重要</h2>
+        <p class="section__desc">
+          每个案例都写清了：遇到什么问题、我怎么解决的、结果是什么。过程比结论有说服力。
+        </p>
+      </div>
+      <div class="grid grid--3">
+        {featuredCases.map((c, i) => (
+          <a href={`/work#${c.id}`} class="card case">
+            <CaseVisual
+              variant={c.category === 'AI 视频' ? 'video' : c.category === 'AI 自媒体' ? 'media' : 'code'}
+              seed={i}
+            />
+            <div class="case__meta">
+              <span class="tag tag--accent">{c.category}</span>
+              <span>{c.year}</span>
+            </div>
+            <h3 class="card__title">{c.title}</h3>
+            <p class="card__desc">{c.summary}</p>
+            <div class="case__metrics">
+              {c.metrics.slice(0, 2).map((m) => (
+                <div>
+                  <div class="metric__value">{m.value}</div>
+                  <div class="metric__label">{m.label}</div>
+                </div>
+              ))}
+            </div>
+          </a>
+        ))}
+      </div>
+      <div class="btn-row">
+        <a href="/work" class="btn btn--ghost">看全部案例</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 服务与报价 -->
+  <section class="section">
+    <div class="wrap">
+      <div class="section__head">
+        <span class="eyebrow">服务与报价</span>
+        <h2 class="section__title">明码标价，省掉互相试探</h2>
+        <p class="section__desc">
+          下面是锚点价，不是最终定价。写出来是为了过滤不匹配的需求，也省掉你我互相猜的时间。
+        </p>
+      </div>
+      <div class="grid grid--2">
+        {SERVICES.map((s) => (
+          <div class="card svc">
+            <div class="svc__head">
+              <h3 class="card__title">
+                {s.name}
+                {s.featured && <span class="badge">主打</span>}
+              </h3>
+              <div class="svc__price">{s.priceFrom} <span>起</span></div>
+            </div>
+            <p class="card__desc">{s.tagline}</p>
+            <div class="svc__foot">
+              <div>{s.priceNote}</div>
+              <div style="margin-top: 6px;">{s.timeline} · 适合：{s.fitFor}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div class="btn-row">
+        <a href="/services" class="btn btn--primary">查看完整服务说明</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 合作流程 -->
+  <section class="section section--soft">
+    <div class="wrap">
+      <div class="section__head">
+        <span class="eyebrow">怎么合作</span>
+        <h2 class="section__title">四步，每一步都看得到东西</h2>
+      </div>
+      <div class="grid grid--4">
+        {PROCESS.map((p) => (
+          <div class="step">
+            <div class="step__num">{p.step}</div>
+            <h3 class="step__title">{p.title}</h3>
+            <p class="step__desc">{p.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 最新文章 -->
+  <section class="section">
+    <div class="wrap">
+      <div class="section__head">
+        <span class="eyebrow">文章</span>
+        <h2 class="section__title">踩过的坑，写下来</h2>
+        <p class="section__desc">不写教程，只写真实项目里出过问题的地方。</p>
+      </div>
+      <div>
+        {posts.map((p) => (
+          <a href={`/blog/${p.id}`} class="post-item">
+            <span class="post-item__meta">{fmt(p.data.pubDate)} · {p.data.tags.join(' / ')}</span>
+            <h3 class="post-item__title">{p.data.title}</h3>
+            <p class="post-item__desc">{p.data.description}</p>
+          </a>
+        ))}
+      </div>
+      <div class="btn-row">
+        <a href="/blog" class="btn btn--ghost">全部文章</a>
+      </div>
+    </div>
+  </section>
+
+  <CTA />
+</BaseLayout>

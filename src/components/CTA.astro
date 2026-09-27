@@ -1,0 +1,33 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  title?: string;
+  desc?: string;
+  primary?: { text: string; href: string };
+  secondary?: { text: string; href: string };
+}
+
+const {
+  title = '有个想法，但不知道从哪开始？',
+  desc = '把你的需求或困惑丢给我，48 小时内给你一份范围、周期和报价。聊完不合适合我会直说，不浪费你时间。',
+  primary = { text: '预约免费咨询', href: '/contact' },
+  secondary = { text: '先看服务与报价', href: '/services' },
+} = Astro.props;
+---
+
+<section class="section">
+  <div class="wrap">
+    <div class="cta">
+      <h2 class="cta__title">{title}</h2>
+      <p class="cta__desc">{desc}</p>
+      <div class="btn-row">
+        <a href={primary.href} class="btn btn--primary">
+          {primary.text}
+          <Icon name="arrow" size={17} />
+        </a>
+        <a href={secondary.href} class="btn btn--ghost">{secondary.text}</a>
+      </div>
+    </div>
+  </div>
+</section>

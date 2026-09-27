@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CTA from '../components/CTA.astro';
+import { getCollection } from 'astro:content';
+import { SITE } from '../config/site';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+const fmt = (d: Date) =>
+  d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<BaseLayout title="文章" description="真实项目里踩过的坑与总结出来的方法，不写通用教程。">
+  <section class="section">
+    <div class="wrap">
+      <div class="section__head">
+        <span class="eyebrow">文章</span>
+        <h1 class="section__title">踩过的坑，写下来</h1>
+        <p class="section__desc">
+          不写通用教程 —— 那种东西官方文档写得比我好。只写真实项目里出过问题、并且我解决掉的地方。
+        </p>
+      </div>
+
+      <div style="max-width: 760px;">
+        {posts.map((p) => (
+          <a href={`/blog/${p.id}`} class="post-item">
+            <span class="post-item__meta">{fmt(p.data.pubDate)}</span>
+            <h2 class="post-item__title">{p.data.title}</h2>
+            <p class="post-item__desc">{p.data.description}</p>
+            <div>
+              {p.data.tags.map((t) => <span class="tag">{t}</span>)}
+            </div>
+          </a>
+        ))}
+      </div>
+
+      <div class="btn-row">
+        <a href="/rss.xml" class="btn btn--ghost">RSS 订阅</a>
+      </div>
+    </div>
+  </section>
+
+  <CTA
+    title="看完还是不确定怎么做？"
+    desc={`直接把问题发到 ${SITE.author} 的邮箱或微信，48 小时内回复。`}
+  />
+</BaseLayout>

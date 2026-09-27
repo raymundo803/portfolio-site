@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="页面不存在" description="你访问的页面不存在。">
+  <section class="section">
+    <div class="wrap" style="text-align: center; padding: 60px 0;">
+      <p class="mono" style="font-size: 56px; font-weight: 700; color: var(--accent); margin-bottom: 12px;">404</p>
+      <h1 style="font-size: 26px; margin-bottom: 12px;">这个页面不存在</h1>
+      <p class="section__desc" style="margin: 0 auto 28px;">
+        可能是链接过期了，也可能是我还没写。回首页看看？
+      </p>
+      <div class="btn-row" style="justify-content: center;">
+        <a href="/" class="btn btn--primary">回首页</a>
+        <a href="/blog" class="btn btn--ghost">看文章</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

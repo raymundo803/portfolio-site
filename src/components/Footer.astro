@@ -1,0 +1,53 @@
+---
+import { SITE, NAV, CONTACT, CHANNELS, FOOTER } from '../config/site';
+
+const year = new Date().getFullYear();
+const channels = CHANNELS.filter((c) => c.url);
+const yearLabel = FOOTER.since < year ? `${FOOTER.since} – ${year}` : `${year}`;
+---
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="site-footer__inner">
+      <div>
+        <a href="/" class="brand" style="margin-bottom: 10px;">
+          <span class="brand__mark" aria-hidden="true">AI</span>
+          <span>{SITE.name}</span>
+        </a>
+        <p style="max-width: 34ch;">{SITE.description}</p>
+        <p class="mono" style="margin-top: 12px;">{CONTACT.city}</p>
+      </div>
+
+      <div>
+        <p style="font-weight: 600; color: var(--text); margin-bottom: 10px;">导航</p>
+        <div class="footer-links" style="flex-direction: column; gap: 8px;">
+          {NAV.map((item) => <a href={item.href}>{item.text}</a>)}
+        </div>
+      </div>
+
+      <div>
+        <p style="font-weight: 600; color: var(--text); margin-bottom: 10px;">联系</p>
+        <div class="footer-links" style="flex-direction: column; gap: 8px;">
+          {CONTACT.email && <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>}
+          {CONTACT.wechat && <span class="mono">微信 {CONTACT.wechat}</span>}
+          {
+            channels.map((c) => (
+              <a href={c.url} target="_blank" rel="noopener noreferrer">
+                {c.name}
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© {yearLabel} {SITE.author} · {SITE.name}</span>
+      <span>
+        {FOOTER.icp && <span>{FOOTER.icp}</span>}
+        {FOOTER.police && <span style="margin-left: 12px;">{FOOTER.police}</span>}
+        {!FOOTER.icp && !FOOTER.police && <span>本站由 Astro 构建</span>}
+      </span>
+    </div>
+  </div>
+</footer>

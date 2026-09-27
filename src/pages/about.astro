@@ -1,0 +1,116 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CTA from '../components/CTA.astro';
+import Icon from '../components/Icon.astro';
+import { SITE, CHANNELS, CONTACT } from '../config/site';
+import { PROFILE, SKILL_GROUPS, STATS } from '../data/profile';
+
+const channels = CHANNELS.filter((c) => c.url);
+---
+
+<BaseLayout title="关于" description={SITE.description}>
+  <section class="section">
+    <div class="wrap">
+      <div class="grid grid--2" style="gap: 48px; align-items: start;">
+        <div>
+          <span class="eyebrow">关于</span>
+          <h1 class="section__title" style="font-size: clamp(28px, 5vw, 40px);">
+            {SITE.author}
+          </h1>
+          <p class="card__desc" style="font-size: 16px; margin-bottom: 24px;">{SITE.role}</p>
+          {PROFILE.intro.map((p) => <p class="card__desc" style="margin-bottom: 16px; font-size: 16px;">{p}</p>)}
+
+          <div class="stats" style="margin-top: 32px; grid-template-columns: repeat(2, 1fr);">
+            {STATS.map((s) => (
+              <div>
+                <div class="stat__value" style="font-size: 24px;">{s.value}</div>
+                <div class="stat__label">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h2 style="font-size: 20px; margin-bottom: 20px;">我做事的四条原则</h2>
+          <div style="display: flex; flex-direction: column; gap: 18px;">
+            {PROFILE.beliefs.map((b) => (
+              <div class="card" style="padding: 20px;">
+                <h3 style="font-size: 16px; margin-bottom: 6px; display: flex; gap: 8px; align-items: center;">
+                  <Icon name="check" size={16} />
+                  {b.title}
+                </h3>
+                <p class="card__desc" style="font-size: 15px;">{b.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--soft">
+    <div class="wrap">
+      <div class="section__head">
+        <span class="eyebrow">技术栈</span>
+        <h2 class="section__title">用什么工具，取决于要解决什么问题</h2>
+        <p class="section__desc">不追新，也不守旧。能最快跑通、长期维护成本最低的，就是对的那个。</p>
+      </div>
+      <div class="grid grid--4">
+        {SKILL_GROUPS.map((g) => (
+          <div class="card">
+            <h3 style="font-size: 16px; margin-bottom: 14px;">{g.name}</h3>
+            <div>
+              {g.items.map((i) => <span class="tag">{i}</span>)}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {
+    channels.length > 0 && (
+      <section class="section">
+        <div class="wrap">
+          <div class="section__head">
+            <span class="eyebrow">在别处找我</span>
+            <h2 class="section__title">内容平台</h2>
+          </div>
+          <div class="grid grid--2">
+            {channels.map((c) => (
+              <a href={c.url} target="_blank" rel="noopener noreferrer" class="card">
+                <h3 class="card__title">{c.name}</h3>
+                <p class="card__desc">{c.desc}</p>
+                <p class="mono" style="font-size: 13px; color: var(--text-mute); margin-top: 10px;">{c.handle}</p>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section">
+    <div class="wrap">
+      <div class="card" style="padding: 32px;">
+        <h2 style="font-size: 20px; margin-bottom: 16px;">工作方式</h2>
+        <div class="grid grid--3">
+          <div>
+            <p style="font-size: 14px; font-weight: 600; color: var(--accent); margin-bottom: 6px;">所在地</p>
+            <p class="card__desc">{CONTACT.city}，远程协作为主，同城可面谈</p>
+          </div>
+          <div>
+            <p style="font-size: 14px; font-weight: 600; color: var(--accent); margin-bottom: 6px;">响应时效</p>
+            <p class="card__desc">工作日 24 小时内回复，方案与报价 48 小时内给出</p>
+          </div>
+          <div>
+            <p style="font-size: 14px; font-weight: 600; color: var(--accent); margin-bottom: 6px;">排期</p>
+            <p class="card__desc">严格串行，不并行接项目。当前档期请直接问</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CTA />
+</BaseLayout>
