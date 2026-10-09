@@ -80,20 +80,21 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      # 仓库没启用 Pages 时，deploy-pages 只会抛一个 404 错误。
-      # 这里先探一下，没启用就跳过并说清楚该去哪里点，免得满屏红叉不好排查。
+      # 仓库没启用 Pages 时，deploy-pages 只会抛一个没有指向性的 404。
+      # 先探一下：只有明确返回 200 才部署，其余情况都跳过并说清楚该去哪里点。
       - name: Check whether Pages is enabled
         id: pages
         run: |
           code=$(curl -s -o /dev/null -w '%{http_code}' \
             -H "Authorization: Bearer $GITHUB_TOKEN" \
             "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pages")
-          if [ "$code" = "404" ]; then
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "::warning title=Pages 尚未启用::请到 Settings → Pages，把 Source 选为 GitHub Actions，保存后重跑本工作流"
-          else
+          echo "Pages API → HTTP $code"
+          if [ "$code" = "200" ]; then
             echo "enabled=true" >> "$GITHUB_OUTPUT"
-            echo "Pages 已启用（HTTP $code）"
+            echo "Pages 已启用，继续部署"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Pages 尚未启用::请到 $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/settings/pages ，把 Source 选为 GitHub Actions 并保存，然后重跑本工作流"
           fi
 
       - name: Deploy to GitHub Pages
