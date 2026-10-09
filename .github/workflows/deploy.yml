@@ -85,9 +85,13 @@ jobs:
       # （build_type=workflow），省得每次都要去 Settings 里手动点。
       - name: Ensure Pages is enabled
         id: pages
+        env:
+          # GITHUB_TOKEN 是自动创建的 secret，但不会自动进入 shell 环境，
+          # 必须显式注入，否则 curl 发出的是匿名请求 → 401。
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           resp=$(curl -s -w '\n%{http_code}' -X POST \
-            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Authorization: Bearer $GH_TOKEN" \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pages" \
@@ -95,6 +99,7 @@ jobs:
           code=$(printf '%s' "$resp" | tail -n1)
           body=$(printf '%s' "$resp" | sed '$d')
           echo "创建 Pages → HTTP $code"
+          printf '%s\n' "$body" | head -4
 
           case "$code" in
             200|201)
@@ -105,7 +110,7 @@ jobs:
             409|422)
               # 已存在，正常的重复部署
               code=$(curl -s -o /dev/null -w '%{http_code}' \
-                -H "Authorization: Bearer $GITHUB_TOKEN" \
+                -H "Authorization: Bearer $GH_TOKEN" \
                 "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pages")
               echo "Pages 已存在（查询返回 $code）"
               echo "ok=true" >> "$GITHUB_OUTPUT"
