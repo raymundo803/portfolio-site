@@ -1,5 +1,6 @@
 ---
 import Icon from './Icon.astro';
+import { withBase } from '../utils/url';
 
 interface Props {
   title?: string;
@@ -22,11 +23,11 @@ const {
       <h2 class="cta__title">{title}</h2>
       <p class="cta__desc">{desc}</p>
       <div class="btn-row">
-        <a href={primary.href} class="btn btn--primary">
+        <a href={withBase(primary.href)} class="btn btn--primary">
           {primary.text}
           <Icon name="arrow" size={17} />
         </a>
-        <a href={secondary.href} class="btn btn--ghost">{secondary.text}</a>
+        <a href={withBase(secondary.href)} class="btn btn--ghost">{secondary.text}</a>
       </div>
     </div>
   </div>

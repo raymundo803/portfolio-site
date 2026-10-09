@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
 import { CONTACT, SITE } from '../config/site';
+import { withBase } from '../utils/url';
 
 const hasForm = Boolean(CONTACT.formEndpoint);
 
@@ -132,9 +133,9 @@ const mailto = CONTACT.email ? `mailto:${CONTACT.email}?subject=${subject}&body=
           <div class="card" style="padding: 28px;">
             <h2 style="font-size: 17px; margin-bottom: 14px;">聊之前可以先看</h2>
             <ul class="svc__list">
-              <li><a href="/services">服务范围与报价锚点</a></li>
-              <li><a href="/work">过往案例（含失败复盘）</a></li>
-              <li><a href="/blog">我对 AI 交付的真实看法</a></li>
+              <li><a href={withBase('/services')}>服务范围与报价锚点</a></li>
+              <li><a href={withBase('/work')}>过往案例（含失败复盘）</a></li>
+              <li><a href={withBase('/blog')}>我对 AI 交付的真实看法</a></li>
             </ul>
           </div>
         </div>

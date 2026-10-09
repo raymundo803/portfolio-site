@@ -8,6 +8,8 @@ export const SITE = {
   shortName: 'AI交付',
   author: '你的名字',
   role: '独立开发者 · AI 交付工程师',
+  // 本地预览用的兜底值。真实域名由 astro.config.mjs 的 site 注入
+  // （部署时经 SITE_URL 环境变量传入），代码里读 import.meta.env.SITE 取实际值。
   url: 'https://yourdomain.com',
   locale: 'zh-CN',
   description:

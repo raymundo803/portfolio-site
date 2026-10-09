@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import CTA from '../components/CTA.astro';
 import Icon from '../components/Icon.astro';
 import { SERVICES, PROCESS } from '../data/services';
+import { withBase } from '../utils/url';
 
 const FAQ = [
   {
@@ -75,7 +76,7 @@ const FAQ = [
             </div>
 
             <div class="svc__foot">
-              <a href="/contact" class="btn btn--primary" style="padding: 9px 18px; font-size: 14px;">
+              <a href={withBase('/contact')} class="btn btn--primary" style="padding: 9px 18px; font-size: 14px;">
                 咨询这项服务
                 <Icon name="arrow" size={15} />
               </a>

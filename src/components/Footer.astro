@@ -1,5 +1,6 @@
 ---
 import { SITE, NAV, CONTACT, CHANNELS, FOOTER } from '../config/site';
+import { withBase } from '../utils/url';
 
 const year = new Date().getFullYear();
 const channels = CHANNELS.filter((c) => c.url);
@@ -10,7 +11,7 @@ const yearLabel = FOOTER.since < year ? `${FOOTER.since} – ${year}` : `${year}
   <div class="wrap">
     <div class="site-footer__inner">
       <div>
-        <a href="/" class="brand" style="margin-bottom: 10px;">
+        <a href={withBase('/')} class="brand" style="margin-bottom: 10px;">
           <span class="brand__mark" aria-hidden="true">AI</span>
           <span>{SITE.name}</span>
         </a>
@@ -21,7 +22,7 @@ const yearLabel = FOOTER.since < year ? `${FOOTER.since} – ${year}` : `${year}
       <div>
         <p style="font-weight: 600; color: var(--text); margin-bottom: 10px;">导航</p>
         <div class="footer-links" style="flex-direction: column; gap: 8px;">
-          {NAV.map((item) => <a href={item.href}>{item.text}</a>)}
+          {NAV.map((item) => <a href={withBase(item.href)}>{item.text}</a>)}
         </div>
       </div>
 

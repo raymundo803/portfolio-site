@@ -1,15 +1,19 @@
 ---
 import { SITE, NAV, CONTACT } from '../config/site';
+import { withBase } from '../utils/url';
 import Icon from './Icon.astro';
 
 const path = Astro.url.pathname;
-const isActive = (href: string) =>
-  href === '/' ? path === '/' || path === '/index' : path.startsWith(href);
+// 子路径部署时 pathname 形如 "/portfolio-site/work/"，导航高亮要按加了前缀的地址比
+const isActive = (href: string) => {
+  const target = withBase(href);
+  return href === '/' ? path === target || path === `${target}/` : path.startsWith(target);
+};
 ---
 
 <header class="site-header">
   <div class="wrap site-header__inner">
-    <a href="/" class="brand">
+    <a href={withBase('/')} class="brand">
       <span class="brand__mark" aria-hidden="true">AI</span>
       <span>{SITE.name}</span>
     </a>
@@ -17,7 +21,7 @@ const isActive = (href: string) =>
     <nav class="site-nav" id="site-nav" aria-label="主导航">
       {
         NAV.map((item) => (
-          <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+          <a href={withBase(item.href)} aria-current={isActive(item.href) ? 'page' : undefined}>
             {item.text}
           </a>
         ))
@@ -28,7 +32,7 @@ const isActive = (href: string) =>
       <button class="icon-btn" id="theme-toggle" type="button" aria-label="切换深色模式">
         <span id="theme-icon-light"><Icon name="sun" size={17} /></span>
       </button>
-      <a href="/contact" class="btn btn--primary" style="padding: 8px 16px; font-size: 14px;">
+      <a href={withBase('/contact')} class="btn btn--primary" style="padding: 8px 16px; font-size: 14px;">
         预约咨询
       </a>
       <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="打开菜单">
