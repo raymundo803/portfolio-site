@@ -80,48 +80,25 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      # 仓库没启用 Pages 时，deploy-pages 只会抛一个没有指向性的 404。
-      # 这里不只检测，还尝试用 GITHUB_TOKEN 直接把 Pages 站点建起来
-      # （build_type=workflow），省得每次都要去 Settings 里手动点。
-      - name: Ensure Pages is enabled
+      # Pages 站点只能由仓库管理员在 Settings 里创建：试过用 GITHUB_TOKEN 调
+      # POST /repos/{owner}/{repo}/pages，返回 403 —— workflow 令牌权限不足，
+      # 这条路走不通。所以这里只做检测，没启用就跳过并指路，不制造红色失败。
+      - name: Check whether Pages is enabled
         id: pages
         env:
-          # GITHUB_TOKEN 是自动创建的 secret，但不会自动进入 shell 环境，
-          # 必须显式注入，否则 curl 发出的是匿名请求 → 401。
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          resp=$(curl -s -w '\n%{http_code}' -X POST \
+          code=$(curl -s -o /dev/null -w '%{http_code}' \
             -H "Authorization: Bearer $GH_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pages" \
-            -d '{"build_type":"workflow"}')
-          code=$(printf '%s' "$resp" | tail -n1)
-          body=$(printf '%s' "$resp" | sed '$d')
-          echo "创建 Pages → HTTP $code"
-          printf '%s\n' "$body" | head -4
-
-          case "$code" in
-            200|201)
-              echo "Pages 站点已创建，等待 GitHub 完成初始化"
-              echo "ok=true" >> "$GITHUB_OUTPUT"
-              sleep 15
-              ;;
-            409|422)
-              # 已存在，正常的重复部署
-              code=$(curl -s -o /dev/null -w '%{http_code}' \
-                -H "Authorization: Bearer $GH_TOKEN" \
-                "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pages")
-              echo "Pages 已存在（查询返回 $code）"
-              echo "ok=true" >> "$GITHUB_OUTPUT"
-              ;;
-            *)
-              echo "::error title=无法启用 Pages::HTTP $code"
-              printf '%s\n' "$body" | head -5
-              echo "::error::请手动到 $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/settings/pages ，把 Source 选为 GitHub Actions 并保存，然后重跑本工作流"
-              echo "ok=false" >> "$GITHUB_OUTPUT"
-              ;;
-          esac
+            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pages")
+          echo "Pages API → HTTP $code"
+          if [ "$code" = "200" ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+            echo "Pages 已启用，继续部署"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Pages 尚未启用，部署已跳过::请到 $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/settings/pages ，把 Source 选为 GitHub Actions 并保存。保存后重跑本工作流即可。"
+          fi
 
       - name: Deploy to GitHub Pages
         id: deployment
