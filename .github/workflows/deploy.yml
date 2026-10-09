@@ -1,0 +1,67 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        env:
+          # 仓库是项目页，站点挂在 https://<user>.github.io/<repo>/ 下
+          # 若日后改了仓库名或改用自定义域名，改这两行即可
+          BASE_PATH: /portfolio-site
+          SITE_URL: https://raymundo803.github.io
+        run: npm run build
+
+      - name: Verify base path applied
+        run: |
+          if ! grep -q '/portfolio-site/' dist/index.html; then
+            echo "::error::BASE_PATH 未生效，产物里的链接仍是根路径，部署后必然 404"
+            exit 1
+          fi
+          if grep -q 'yourdomain.com' dist/index.html; then
+            echo "::error::产物里仍有占位域名 yourdomain.com，检查 SITE_URL"
+            exit 1
+          fi
+          echo "构建产物校验通过"
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

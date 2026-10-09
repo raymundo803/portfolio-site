@@ -1,12 +1,56 @@
-# 部署到腾讯云轻量应用服务器
+# 部署指南
+
+站点是纯静态的，同一份代码可以同时部署到两个地方，互不冲突：
+
+| 方式 | 用途 | 触发 |
+|---|---|---|
+| **GitHub Pages** | 免费备用站、技术展示、海外访问 | push 到 main 后自动构建部署 |
+| **腾讯云轻量** | 商业主站，大陆秒开 | 本地 `npm run deploy` 手动上传 |
+
+两者唯一的差别是**部署路径**：Pages 挂在子路径 `/portfolio-site/` 下，腾讯云在根路径。
+链接前缀由 `src/utils/url.ts` 的 `withBase()` 统一处理，两处都不用改源码。
+
+---
+
+## 一、GitHub Pages
+
+流水线已配好：`.github/workflows/deploy.yml`，push 到 main 就自动构建并发布。
+
+**首次启用只需做一次：**
+
+1. 打开 https://github.com/raymundo803/portfolio-site/settings/pages
+2. **Source** 选 `GitHub Actions`（不要选 Deploy from a branch）
+3. 去 https://github.com/raymundo803/portfolio-site/actions 看流水线跑完
+4. 访问 https://raymundo803.github.io/portfolio-site/
+
+之后每次 push 都会自动重新部署，不用再管。
+
+想在本地预览 Pages 版本（子路径）的效果：
+
+```bash
+npm run build:pages && npm run preview
+```
+
+**日后改仓库名或换自定义域名时**，改 workflow 里这两行即可：
+
+```yaml
+BASE_PATH: /portfolio-site                    # 改成 /<新仓库名>；用自定义域名则改回 /
+SITE_URL: https://raymundo803.github.io       # 改成你的域名
+```
+
+---
+
+## 二、腾讯云轻量应用服务器
 
 采用「本地构建 + 上传静态文件」方案：服务器只装 nginx，不装 Node。
 构建环境留在本机，好处是安全面最小、2G 内存的机器也不会在构建时 OOM，
 坏处是每次更新要跑一次 `npm run deploy`。
 
+腾讯云走根路径，不要设 `BASE_PATH`，`npm run build` 的默认行为就是对的。
+
 ---
 
-## 一、你需要在服务器上跑一次的命令
+## 三、你需要在服务器上跑一次的命令
 
 登录服务器（`ssh root@你的IP`），逐条执行。这些只需要做一次。
 
@@ -34,7 +78,7 @@ chmod 755 /var/www/html && chmod 644 /var/www/html/*
 
 ---
 
-## 二、本地部署
+## 四、本地部署
 
 ```bash
 npm run deploy -- -h 你的服务器IP -u root -p /var/www/html -v
@@ -63,7 +107,7 @@ SSH_PORT=2222 SSH_KEY=~/.ssh/xxx npm run deploy -- -h 1.2.3.4 -u ubuntu -v
 
 ---
 
-## 三、绑定域名与备案
+## 五、绑定域名与备案
 
 **这是最容易卡住的一步。** 大陆节点的服务器绑定域名必须先完成 ICP 备案，
 周期通常 1–3 周。顺序建议：
@@ -77,7 +121,7 @@ SSH_PORT=2222 SSH_KEY=~/.ssh/xxx npm run deploy -- -h 1.2.3.4 -u ubuntu -v
 
 ---
 
-## 四、HTTPS
+## 六、HTTPS
 
 ```bash
 apt install -y certbot python3-certbot-nginx
@@ -89,7 +133,7 @@ certbot 会自动改配置并写续期定时任务。证书 90 天到期，自�
 
 ---
 
-## 五、日常更新
+## 七、日常更新
 
 改了内容之后：
 
@@ -107,7 +151,7 @@ npm run deploy -- -h <IP> -v
 
 ---
 
-## 六、出问题先查这三样
+## 八、出问题先查这三样
 
 | 现象 | 原因 |
 |---|---|
