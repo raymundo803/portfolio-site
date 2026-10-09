@@ -38,16 +38,34 @@ jobs:
           SITE_URL: https://raymundo803.github.io
         run: npm run build
 
-      - name: Verify base path applied
+      - name: Verify build output
         run: |
-          if ! grep -q '/portfolio-site/' dist/index.html; then
-            echo "::error::BASE_PATH 未生效，产物里的链接仍是根路径，部署后必然 404"
+          set -eu
+
+          # 1) 站内链接必须带 base 前缀，否则 Pages 上点哪都是 404
+          if ! grep -q 'href="/portfolio-site/' dist/index.html; then
+            echo "::error::站内链接缺少 base 前缀，检查 BASE_PATH"
             exit 1
           fi
-          if grep -q 'yourdomain.com' dist/index.html; then
-            echo "::error::产物里仍有占位域名 yourdomain.com，检查 SITE_URL"
+
+          # 2) canonical 必须用 SITE_URL。
+          #    这里只查 canonical，不要全文搜 yourdomain.com ——
+          #    site.ts 里的占位邮箱会被页脚渲染进每个页面，误报成失败。
+          CANONICAL=$(grep -o 'rel="canonical" href="[^"]*"' dist/index.html | head -1)
+          echo "canonical → ${CANONICAL:-<未找到>}"
+          case "$CANONICAL" in
+            *yourdomain.com*)
+              echo "::error::canonical 仍是占位域名，SITE_URL 没有生效"
+              exit 1
+              ;;
+          esac
+
+          # 3) favicon / rss 这类根级资源也要带前缀
+          if ! grep -q 'href="/portfolio-site/rss.xml"' dist/index.html; then
+            echo "::error::rss.xml 链接缺少 base 前缀"
             exit 1
           fi
+
           echo "构建产物校验通过"
 
       - name: Upload artifact
@@ -62,6 +80,23 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # 仓库没启用 Pages 时，deploy-pages 只会抛一个 404 错误。
+      # 这里先探一下，没启用就跳过并说清楚该去哪里点，免得满屏红叉不好排查。
+      - name: Check whether Pages is enabled
+        id: pages
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pages")
+          if [ "$code" = "404" ]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Pages 尚未启用::请到 Settings → Pages，把 Source 选为 GitHub Actions，保存后重跑本工作流"
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+            echo "Pages 已启用（HTTP $code）"
+          fi
+
       - name: Deploy to GitHub Pages
         id: deployment
+        if: steps.pages.outputs.enabled == 'true'
         uses: actions/deploy-pages@v4
